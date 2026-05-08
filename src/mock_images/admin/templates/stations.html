@@ -28,7 +28,6 @@
       <thead>
         <tr>
           <th>name</th>
-          <th>station_id (UUID)</th>
           <th>label</th>
           <th>status</th>
           <th>files</th>
@@ -54,9 +53,7 @@
   <div class="modal-content">
     <div class="modal-title">개소 등록</div>
     <div class="modal-row"><label>station_name *</label><input type="text" id="add-name" maxlength="64" placeholder="예: FL-A01-NORTH"></div>
-    <div class="modal-row"><label>station_id</label><input type="text" id="add-uuid" placeholder="비우면 자동 생성 (UUID v4)"></div>
     <div class="modal-row"><label>label</label><input type="text" id="add-label" maxlength="128"></div>
-    <div class="modal-row"><span class="muted">station_id를 비우면 자동 생성되며, SocketDaim Admin UI(:9108)의 [대기 중] 탭에서 [승인]으로 등록할 수 있습니다.</span></div>
     <div class="modal-actions">
       <button class="btn" data-modal-close="modal-add">취소</button>
       <button class="btn btn-primary" id="add-save">등록</button>
@@ -69,7 +66,6 @@
   <div class="modal-content">
     <div class="modal-title">개소 수정</div>
     <div class="modal-row"><label>station_name</label><span class="ro" id="edit-name"></span></div>
-    <div class="modal-row"><label>station_id</label><input type="text" id="edit-uuid"></div>
     <div class="modal-row"><label>label</label><input type="text" id="edit-label" maxlength="128"></div>
     <div class="modal-row"><label>status</label>
       <select id="edit-status">

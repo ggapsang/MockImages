@@ -38,7 +38,6 @@ function render(rows) {
     tdName.appendChild(a);
     tr.appendChild(tdName);
 
-    addCell(tr, r.station_id, 'mono');
     addCell(tr, r.label || '');
     addStatusBadge(tr, r.status);
     addCell(tr, r.file_count, 'mono');
@@ -105,7 +104,6 @@ $('#btn-add').addEventListener('click', () => {
 $('#add-save').addEventListener('click', async () => {
   const body = {
     station_name: $('#add-name').value.trim(),
-    station_id:   $('#add-uuid').value.trim() || null,
     label:        $('#add-label').value.trim() || null,
   };
   if (!body.station_name) { toast('station_name은 필수', 'error'); return; }
@@ -121,7 +119,6 @@ $('#add-save').addEventListener('click', async () => {
 function onEdit(r) {
   _editing = r;
   $('#edit-name').textContent = r.station_name;
-  $('#edit-uuid').value       = r.station_id;
   $('#edit-label').value      = r.label || '';
   $('#edit-status').value     = r.status;
   openModal('modal-edit');
@@ -130,7 +127,6 @@ function onEdit(r) {
 $('#edit-save').addEventListener('click', async () => {
   if (!_editing) return;
   const body = {
-    station_id: $('#edit-uuid').value.trim() || null,
     label:      $('#edit-label').value.trim() || null,
     status:     $('#edit-status').value,
   };

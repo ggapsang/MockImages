@@ -130,18 +130,11 @@ async def api_stations_create(request: web.Request) -> web.Response:
     name = (body.get("station_name") or "").strip()
     if not name or "/" in name or "\\" in name or ".." in name:
         return _bad_request("invalid station_name")
-    sid_raw = body.get("station_id")
-    sid: uuid.UUID | None = None
-    if sid_raw:
-        try:
-            sid = uuid.UUID(str(sid_raw))
-        except ValueError:
-            return _bad_request("station_id must be a valid UUID")
     label = body.get("label")
 
     try:
         row = await meta_db.insert_station(
-            s.pool, station_name=name, station_id=sid, label=label,
+            s.pool, station_name=name, label=label,
         )
     except Exception as exc:
         # asyncpg.UniqueViolationError, etc.
@@ -165,17 +158,10 @@ async def api_stations_patch(request: web.Request) -> web.Response:
         return _bad_request("invalid JSON")
     label = body.get("label")
     status = body.get("status")
-    sid_raw = body.get("station_id")
-    sid: uuid.UUID | None = None
-    if sid_raw:
-        try:
-            sid = uuid.UUID(str(sid_raw))
-        except ValueError:
-            return _bad_request("station_id must be a valid UUID")
     if status is not None and status not in ("active", "paused"):
         return _bad_request("status must be active|paused")
     row = await meta_db.update_station(
-        s.pool, name, label=label, status=status, station_id=sid,
+        s.pool, name, label=label, status=status,
     )
     if row is None:
         return _not_found(f"station not found: {name}")

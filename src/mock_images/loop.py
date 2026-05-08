@@ -125,7 +125,6 @@ async def _stay_at_station(
     files: list[dict],
 ) -> None:
     name = station["station_name"]
-    station_id = str(station["station_id"])
 
     cfg = state.cfg     # snapshot at station entry; still readable each file
     stay_mode = cfg.stay_mode
@@ -141,8 +140,8 @@ async def _stay_at_station(
     state.status.file_idx_in_station = 0
 
     logger.info(
-        "[STAY] %s (station_id=%s) %d files, mode=%s",
-        name, station_id, len(candidate_files), stay_mode,
+        "[STAY] %s %d files, mode=%s",
+        name, len(candidate_files), stay_mode,
     )
 
     stay_started = time.monotonic()
@@ -170,7 +169,7 @@ async def _stay_at_station(
             logger.info("skip-file requested at %s/%s", name, f["filename"])
             continue
 
-        await _send_one(client, state, station_id, name, f)
+        await _send_one(client, state, name, f)
         state.status.file_idx_in_station = f_idx + 1
         state.status.last_file_at_iso = _iso_now()
 
@@ -185,7 +184,6 @@ async def _stay_at_station(
 async def _send_one(
     client: TcpClient,
     state: AppState,
-    station_id: str,
     station_name: str,
     f: dict,
 ) -> None:
@@ -201,7 +199,6 @@ async def _send_one(
         client,
         state.stats,
         file_path=file_path,
-        station_id=station_id,
         station_name=station_name,
         source_filename=f["filename"],
         file_type=f.get("file_type", "unknown"),

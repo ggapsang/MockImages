@@ -62,7 +62,6 @@ async def send_one_file(
     stats: RuntimeStats,
     *,
     file_path: Path,
-    station_id: str,
     station_name: str,
     source_filename: str,
     file_type: str,
@@ -113,7 +112,6 @@ async def send_one_file(
     for seq, body in enumerate(split_chunks(data, chunk_size_bytes)):
         ctx = ChunkContext(
             video_id=video_id,
-            station_id=station_id,
             station_name=station_name,
             captured_at=captured_at,
             chunk_seq=seq,

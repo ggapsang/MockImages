@@ -10,15 +10,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from gw_proto import VideoChunkMeta, build_video_chunk_payload
+# gw_proto helpers are still available; we inline header construction
+# here to merge plug-in extensions in one pass.
 
 
 @dataclass(slots=True)
 class ChunkContext:
-    """Runtime context passed to extension plug-ins to enrich the header."""
+    """Runtime context passed to extension plug-ins to enrich the header.
+
+    The wire identifier is ``station_name`` only — UUIDs are private to
+    each module's database and never travel over the wire.
+    """
 
     video_id: str
-    station_id: str
     station_name: str
     captured_at: str | None
     chunk_seq: int
@@ -83,41 +87,25 @@ def build_chunk_payload(
 ) -> bytes:
     """Build a VIDEO_CHUNK payload.
 
-    The required fields plus `source_format` (a Gateway-recognized field)
-    go straight into VideoChunkMeta.  Extra plug-in extensions are merged
-    into the JSON header before serialization.
+    Required fields + Gateway-recognized optional fields are inlined.
+    Extra plug-in extensions are merged into the JSON header.
     """
-    meta = VideoChunkMeta(
-        video_id=ctx.video_id,
-        chunk_seq=ctx.chunk_seq,
-        total_chunks=ctx.total_chunks,
-        station_id=ctx.station_id,
-        captured_at=ctx.captured_at,
-        amr_id=ctx.amr_id,
-        amr_position=ctx.amr_position,
-        source_format=ctx.source_format,
-    )
-
-    # gw_proto.build_video_chunk_payload already includes the recognized
-    # fields.  We add the plug-in extensions after the fact by parsing
-    # back and re-building — but that's wasteful, so we replicate the
-    # header construction here to merge in one pass.
     import json as _json
 
     header: dict[str, Any] = {
-        "video_id": meta.video_id,
-        "chunk_seq": meta.chunk_seq,
-        "total_chunks": meta.total_chunks,
-        "station_id": meta.station_id,
+        "video_id": ctx.video_id,
+        "chunk_seq": ctx.chunk_seq,
+        "total_chunks": ctx.total_chunks,
+        "station_name": ctx.station_name,
     }
-    if meta.captured_at is not None:
-        header["captured_at"] = meta.captured_at
-    if meta.amr_id is not None:
-        header["amr_id"] = meta.amr_id
-    if meta.amr_position is not None:
-        header["amr_position"] = meta.amr_position
-    if meta.source_format is not None:
-        header["source_format"] = meta.source_format
+    if ctx.captured_at is not None:
+        header["captured_at"] = ctx.captured_at
+    if ctx.amr_id is not None:
+        header["amr_id"] = ctx.amr_id
+    if ctx.amr_position is not None:
+        header["amr_position"] = ctx.amr_position
+    if ctx.source_format is not None:
+        header["source_format"] = ctx.source_format
 
     for name in enabled_extensions:
         fn = _EXTENSIONS.get(name)
