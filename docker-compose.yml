@@ -1,0 +1,89 @@
+# MockImages – Development compose file
+# ---------------------------------------
+# Services:
+#   mock-images-postgres   메타 DB (station, media_file)  host:2347 -> 5432
+#   mock-images            송신기 + Admin UI (port 8081)
+#
+# Prerequisites:
+#   1. SocketDaim compose가 먼저 올라와 있어야 함 (postgres + ingestion-gw + admin-ui).
+#      cd ~/projects/SocketDaim && docker compose up -d
+#   2. 그 때 생성된 socketdaim_gw-net에 join한다 (external).
+#
+# Bring up:
+#   cd ~/projects/MockImages && docker compose up --build -d
+# Logs (foreground):
+#   docker compose up --build
+# Wipe meta DB volume:
+#   docker compose down -v
+#
+# Admin UI: http://localhost:8081/
+#
+# Build context는 부모 디렉토리(..)이며 SocketDaim/libs/gw_proto를 COPY하므로
+# SocketDaim과 MockImages가 형제 디렉토리여야 한다 (MockSensor와 동일 가정).
+
+services:
+
+  mock-images-postgres:
+    image: postgres:16
+    container_name: mi-postgres
+    environment:
+      POSTGRES_DB: mock_images
+      POSTGRES_USER: mock
+      POSTGRES_PASSWORD: mockpw
+    ports:
+      - "2347:5432"
+    volumes:
+      - ./init_db.sql:/docker-entrypoint-initdb.d/01_init_db.sql:ro
+      - mi-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mock -d mock_images"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - gw-net
+
+  mock-images:
+    build:
+      context: ..
+      dockerfile: MockImages/Dockerfile
+    container_name: mock-images
+    environment:
+      INGESTION_HOST: "ingestion-gw"
+      INGESTION_PORT: "9000"
+      PROTOCOL: "standard"
+      META_DB_URL: "postgresql://mock:mockpw@mock-images-postgres:5432/mock_images"
+      MEDIA_DIR: "/media"
+      AMR_ID: "mock-amr-01"
+      LOOP: "true"
+      MODE: "raw"
+      OUT_FPS: "15"
+      JPEG_QUALITY: "85"
+      OUTPUT_FORMAT: "mp4"
+      JPEG_SEQ_MODE: "single_video"
+      CHUNK_SIZE_KB: "512"
+      INTERVAL_SEC: "5"
+      CYCLE_INTERVAL_SEC: "0"
+      STAY_MODE: "all_files"
+      FILE_ORDER: "last_sent_asc"
+      STARTUP_DELAY_SEC: "2"
+      ADMIN_PORT: "8081"
+      LOG_LEVEL: "INFO"
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./media:/media
+    depends_on:
+      mock-images-postgres:
+        condition: service_healthy
+    networks:
+      - gw-net
+    restart: unless-stopped
+
+volumes:
+  mi-pgdata:
+
+networks:
+  gw-net:
+    external: true
+    name: socketdaim_gw-net

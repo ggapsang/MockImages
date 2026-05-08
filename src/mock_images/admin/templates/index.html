@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>$title</title>
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="/static/css/mockimages.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Top Nav -->
+  <div class="topnav">
+    <div class="title">MockImages 관리</div>
+    <div class="right-actions">
+      <span class="nav-links">
+        <a href="/" class="active">대시보드</a>
+        <a href="/stations">개소 관리</a>
+      </span>
+      &nbsp;&nbsp;
+      <button class="btn" id="btn-pause">일시정지</button>
+      <button class="btn" id="btn-skip-file">파일 스킵</button>
+      <button class="btn" id="btn-skip-station">개소 스킵</button>
+      <button class="btn btn-danger" id="btn-restart">사이클 재시작</button>
+      <button class="btn" id="btn-refresh">새로고침</button>
+    </div>
+  </div>
+
+  <!-- Side -->
+  <div class="side">
+
+    <div class="panel">
+      <fieldset>
+        <legend>현재 진행</legend>
+        <div class="kv">
+          <span class="k">cycle</span><span class="v" id="s-cycle">-</span>
+          <span class="k">station</span><span class="v" id="s-station">-</span>
+          <span class="k">station idx</span><span class="v" id="s-station-idx">-</span>
+          <span class="k">file</span><span class="v" id="s-file">-</span>
+          <span class="k">last sent</span><span class="v" id="s-last">-</span>
+          <span class="k">paused</span><span class="v" id="s-paused">-</span>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>누적 통계</legend>
+        <div class="kv">
+          <span class="k">cycles</span><span class="v" id="t-cycles">-</span>
+          <span class="k">files sent</span><span class="v" id="t-sent">-</span>
+          <span class="k">files rejected</span><span class="v warn-count" id="t-rejected">-</span>
+          <span class="k">chunks sent</span><span class="v" id="t-chunks">-</span>
+          <span class="k">ACK</span><span class="v" id="t-ack">-</span>
+          <span class="k">ERROR</span><span class="v warn-count" id="t-error">-</span>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="resizer-y" id="rsy"></div>
+
+    <div class="panel">
+      <fieldset>
+        <legend>마지막 ERROR</legend>
+        <div id="last-error" class="mono" style="font-size:11px;color:#a00000;white-space:normal">
+          (없음)
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>개소별 거부 누적</legend>
+        <ul class="errlog" id="rejected-by-station">
+          <li class="empty">(없음)</li>
+        </ul>
+      </fieldset>
+    </div>
+
+  </div>
+
+  <div class="resizer-x" id="rsx"></div>
+
+  <!-- Main -->
+  <div class="main">
+    <fieldset>
+      <legend>런타임 설정 (다음 파일부터 적용)</legend>
+      <table class="config-form">
+        <tr><td>mode</td><td>
+          <select id="cf-mode">
+            <option value="raw">raw</option>
+            <option value="transcode">transcode</option>
+          </select>
+        </td>
+          <td>output_format</td><td>
+          <select id="cf-output_format">
+            <option value="mp4">mp4</option>
+            <option value="jpeg_seq">jpeg_seq</option>
+            <option value="jpeg">jpeg</option>
+          </select>
+        </td>
+        </tr>
+        <tr><td>out_fps</td><td><input type="number" id="cf-out_fps" min="1" max="60"></td>
+          <td>jpeg_quality</td><td><input type="number" id="cf-jpeg_quality" min="1" max="100"></td></tr>
+        <tr><td>resize_w</td><td><input type="number" id="cf-resize_w" min="1"></td>
+          <td>resize_h</td><td><input type="number" id="cf-resize_h" min="1"></td></tr>
+        <tr><td>chunk_size_kb</td><td><input type="number" id="cf-chunk_size_kb" min="4" max="4096"></td>
+          <td>interval_sec</td><td><input type="number" id="cf-interval_sec" step="0.1" min="0"></td></tr>
+        <tr><td>cycle_interval_sec</td><td><input type="number" id="cf-cycle_interval_sec" step="0.1" min="0"></td>
+          <td>file_order</td><td>
+            <select id="cf-file_order">
+              <option value="last_sent_asc">last_sent_asc</option>
+              <option value="alphabetical">alphabetical</option>
+              <option value="uploaded">uploaded</option>
+              <option value="random">random</option>
+            </select>
+          </td></tr>
+        <tr><td>stay_mode</td><td>
+          <select id="cf-stay_mode">
+            <option value="all_files">all_files</option>
+            <option value="fixed_count">fixed_count</option>
+            <option value="time_based">time_based</option>
+          </select>
+        </td>
+          <td>files_per_stay</td><td><input type="number" id="cf-files_per_stay" min="1"></td></tr>
+        <tr><td>stay_seconds</td><td><input type="number" id="cf-stay_seconds" step="0.1" min="0"></td>
+          <td>amr_id</td><td><input type="text" id="cf-amr_id"></td></tr>
+        <tr><td>loop</td>
+          <td><input type="checkbox" id="cf-loop"></td>
+          <td colspan="2"><button class="btn btn-primary" id="btn-apply-config">적용</button></td>
+        </tr>
+      </table>
+      <div class="muted" style="font-size:10px">변경된 값은 <b>다음 파일</b>부터 반영됩니다.</div>
+    </fieldset>
+  </div>
+
+  <!-- Status -->
+  <div class="status">
+    <span id="st-cycle">cycle: -</span>
+    &nbsp;|&nbsp;
+    <span id="st-station">station: -</span>
+    &nbsp;|&nbsp;
+    <span id="st-counters">sent: 0 / rej: 0</span>
+    &nbsp;|&nbsp;
+    <span id="st-refreshed">refreshed: -</span>
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>

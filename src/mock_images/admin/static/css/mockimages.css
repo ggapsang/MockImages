@@ -1,0 +1,91 @@
+/* MockImages — additions on top of admin.css.
+   Token additions only: no new colors, no border-radius/shadow. */
+
+/* dashboard layout helpers */
+.section { margin: 8px 4px; }
+.section h3 { margin: 4px 0; font-size: 12px; }
+
+.kv {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 2px 8px;
+  font-size: 11px;
+}
+.kv .k { color: #444; }
+.kv .v { font-family: "Courier New", monospace; }
+
+/* nav links across the top */
+.nav-links { display: flex; gap: 8px; font-size: 11px; }
+.nav-links a {
+  text-decoration: none;
+  color: #000;
+  border: 1px solid #999;
+  padding: 1px 8px;
+  background: #d4d0c8;
+}
+.nav-links a:hover { background: #cde; }
+.nav-links a.active {
+  background: #fff;
+  font-weight: bold;
+}
+
+/* Drag-and-drop upload box */
+.dropzone {
+  border: 2px dashed #999;
+  background: #f5f5f5;
+  padding: 16px;
+  text-align: center;
+  font-size: 11px;
+  color: #444;
+  cursor: pointer;
+  margin: 4px 0;
+}
+.dropzone.over {
+  background: #cde;
+  color: #000;
+  border-color: #000;
+}
+
+/* row action buttons (smaller) */
+table.grid td .row-actions { display: inline-flex; gap: 2px; }
+table.grid td .row-actions .btn { font-size: 10px; padding: 0 6px; }
+
+/* read-only field in modals/forms */
+.ro {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: #000;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  padding: 1px 4px;
+  display: inline-block;
+  min-width: 240px;
+}
+
+/* highlighted error count column */
+.warn-count {
+  color: #a00000;
+  font-weight: bold;
+}
+
+/* big primary action row */
+.actions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+/* runtime config form table */
+table.config-form { font-size: 11px; }
+table.config-form td { padding: 1px 4px; }
+table.config-form td:first-child { color: #444; min-width: 140px; }
+table.config-form input,
+table.config-form select {
+  border: 1px solid #999;
+  background: #fff;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  padding: 1px 4px;
+  width: 120px;
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>$title</title>
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <link rel="stylesheet" href="/static/css/mockimages.css">
+</head>
+<body>
+
+<div class="app" style="grid-template-columns: 1fr; grid-template-rows: 32px 1fr 24px; grid-template-areas: 'topnav' 'main' 'status'">
+
+  <div class="topnav">
+    <div class="title">MockImages — 개소 관리</div>
+    <div class="right-actions">
+      <span class="nav-links">
+        <a href="/">대시보드</a>
+        <a href="/stations" class="active">개소 관리</a>
+      </span>
+      &nbsp;&nbsp;
+      <button class="btn btn-primary" id="btn-add">+ 개소 등록</button>
+      <button class="btn" id="btn-refresh">새로고침</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <table class="grid" id="tbl-stations">
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>station_id (UUID)</th>
+          <th>label</th>
+          <th>status</th>
+          <th>files</th>
+          <th>last sent</th>
+          <th>rejected</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="status">
+    <span id="st-count">stations: -</span>
+    &nbsp;|&nbsp;
+    <span id="st-refreshed">refreshed: -</span>
+  </div>
+
+</div>
+
+<!-- Add Station modal -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal-content">
+    <div class="modal-title">개소 등록</div>
+    <div class="modal-row"><label>station_name *</label><input type="text" id="add-name" maxlength="64" placeholder="예: FL-A01-NORTH"></div>
+    <div class="modal-row"><label>station_id</label><input type="text" id="add-uuid" placeholder="비우면 자동 생성 (UUID v4)"></div>
+    <div class="modal-row"><label>label</label><input type="text" id="add-label" maxlength="128"></div>
+    <div class="modal-row"><span class="muted">station_id를 비우면 자동 생성되며, SocketDaim Admin UI(:9108)의 [대기 중] 탭에서 [승인]으로 등록할 수 있습니다.</span></div>
+    <div class="modal-actions">
+      <button class="btn" data-modal-close="modal-add">취소</button>
+      <button class="btn btn-primary" id="add-save">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Station modal -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal-content">
+    <div class="modal-title">개소 수정</div>
+    <div class="modal-row"><label>station_name</label><span class="ro" id="edit-name"></span></div>
+    <div class="modal-row"><label>station_id</label><input type="text" id="edit-uuid"></div>
+    <div class="modal-row"><label>label</label><input type="text" id="edit-label" maxlength="128"></div>
+    <div class="modal-row"><label>status</label>
+      <select id="edit-status">
+        <option value="active">active</option>
+        <option value="paused">paused</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" data-modal-close="modal-edit">취소</button>
+      <button class="btn btn-primary" id="edit-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Station modal -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal-content">
+    <div class="modal-title">개소 삭제</div>
+    <div class="modal-row"><label>station_name</label><span class="ro" id="del-name"></span></div>
+    <div class="modal-row"><span class="danger">메타 DB의 media_file 행과 미디어 폴더 안의 파일이 모두 삭제됩니다.</span></div>
+    <div class="modal-actions">
+      <button class="btn" data-modal-close="modal-delete">취소</button>
+      <button class="btn btn-danger" id="del-save">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/stations.js"></script>
+</body>
+</html>

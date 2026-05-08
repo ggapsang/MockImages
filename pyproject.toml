@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mock-images"
+version = "0.1.0"
+description = "Mock 영상/이미지 송신기 (Ingestion Gateway 검증용)"
+requires-python = ">=3.11"
+dependencies = [
+    "asyncpg>=0.30",
+    "pydantic-settings>=2.3",
+    "aiohttp>=3.9",
+    "opencv-python-headless>=4.10",
+    "numpy>=1.26",
+    "gw-proto",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mock_images"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
