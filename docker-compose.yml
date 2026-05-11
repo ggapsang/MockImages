@@ -78,7 +78,13 @@ services:
         condition: service_healthy
     networks:
       - gw-net
-    restart: unless-stopped
+    # 의도적으로 "no" — MockImages는 개발용 시험 송신기라 시스템 reboot이나
+    # Docker 데몬 재시작 시 자동 부활해선 안 된다. 살아있는 동안만큼만
+    # 송신하고, 명시적으로 다시 띄울 때만 동작한다. (2026-05-12 이전 사고:
+    # restart=unless-stopped로 두었더니 부지불식간에 부활→무한 LOOP 송신으로
+    # SocketDaim/storage가 1TB까지 차서 cleaner 14일 정책으론 회수 불가능
+    # 상태가 됨. emergency_purge를 도입했지만 부활 자체를 막는 게 우선.)
+    restart: "no"
 
 volumes:
   mi-pgdata:
