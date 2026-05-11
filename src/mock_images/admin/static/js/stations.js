@@ -96,7 +96,6 @@ function addActions(tr, buttons) {
 // Add modal
 $('#btn-add').addEventListener('click', () => {
   $('#add-name').value  = '';
-  $('#add-uuid').value  = '';
   $('#add-label').value = '';
   openModal('modal-add');
 });
