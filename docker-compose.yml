@@ -69,6 +69,10 @@ services:
       STARTUP_DELAY_SEC: "2"
       ADMIN_PORT: "8081"
       LOG_LEVEL: "INFO"
+      # 부팅 시 송신 루프를 일시정지 상태로 시작한다.  Admin UI(:8081)의
+      # [재개] 버튼 또는 `curl -X POST localhost:8081/api/runtime/resume`을
+      # 명시적으로 호출해야 송신이 시작된다.  "false"로 두면 옛 동작(즉시 시작).
+      STARTUP_PAUSED: "true"
     ports:
       - "8081:8081"
     volumes:

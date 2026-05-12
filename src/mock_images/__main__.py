@@ -50,11 +50,17 @@ async def _main() -> None:
         cfg=RuntimeConfig.from_settings(settings),
         stats=RuntimeStats(),
         status=RuntimeStatus(),
-        gate=PauseGate(paused=False),
+        gate=PauseGate(paused=settings.startup_paused),
         skip=SkipFlags(),
         pool=pool,
         media_root=Path(settings.media_dir),
     )
+    if settings.startup_paused:
+        logger.info(
+            "startup_paused=true — 송신 루프 대기 상태로 시작. "
+            "Admin UI(:%d)의 [재개] 또는 POST /api/runtime/resume 호출 시 송신 시작.",
+            settings.admin_port,
+        )
 
     runner = await start_admin_server(
         host=settings.admin_host,

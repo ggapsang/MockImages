@@ -50,6 +50,14 @@ class Settings(BaseSettings):
     jpeg_seq_mode: str = "single_video"  # single_video | per_frame
     chunk_size_kb: int = 512
 
+    # -- Startup behaviour -------------------------------------------------
+    # True면 컨테이너 부팅 직후 PauseGate가 닫힌 상태로 시작해서 송신 루프가
+    # 대기 상태가 된다.  Admin UI(:8081)의 [재개] 또는
+    # `POST /api/runtime/resume`을 명시적으로 호출해야 송신을 시작한다.
+    # 시험용 무한 LOOP 송신기가 의도와 무관하게 부지불식간에 깨어나
+    # SocketDaim/storage를 채우는 사고를 막기 위한 안전 default.
+    startup_paused: bool = True
+
     # -- Admin UI ----------------------------------------------------------
     admin_host: str = "0.0.0.0"
     admin_port: int = 8081
